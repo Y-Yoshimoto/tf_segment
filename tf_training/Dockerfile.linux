@@ -1,0 +1,6 @@
+FROM tensorflow/tensorflow:latest
+LABEL maintaner='y-yoshimoto'
+
+WORKDIR /home
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
