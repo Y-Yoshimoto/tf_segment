@@ -1,0 +1,42 @@
+#FROM ubuntu:latest AS builder
+FROM python:slim-bullseye AS builder
+LABEL maintaner='y-yoshimoto'
+# Install the required tools.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates zip unzip nodejs npm libhdf5-dev gcc g++ \
+    && apt-get -y clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
+
+# Instal bazel. (https://bazel.build/install/bazelisk)
+RUN npm install -g @bazel/bazelisk
+# Install required Python libraries.
+RUN pip install --upgrade pip \
+    && pip install -U --no-cache-dir wheel numpy packaging requests\
+    && pip install -U --no-cache-dir keras_preprocessing --no-deps
+
+# Build tensorflow.(https://www.tensorflow.org/install/source?hl=ja)
+RUN curl -L https://github.com/tensorflow/tensorflow/archive/refs/heads/master.zip -o tensorflow-master.zip \
+    && unzip tensorflow-master.zip \
+    && rm tensorflow-master.zip
+WORKDIR /tensorflow-master
+COPY ./buildConfig /tensorflow-master
+RUN cat ./buildConfig | grep -v "#" > ./tmpConfig && ./configure < ./tmpConfig && rm ./tmpConfig
+RUN bazel build //tensorflow/tools/pip_package:build_pip_package --config=nogcp --config=nonccl --copt=-march=native\
+    && bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+
+# Python Image
+FROM python:slim-bullseye
+LABEL maintaner='y-yoshimoto'
+COPY --from=builder /tmp/tensorflow_pkg/*.whl /tmp/
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir /tmp/tensorflow-*.whl \
+    && pip freeze > requirements.lock
+
+#COPY src/*  /usr/src/
+WORKDIR /usr/src/
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]

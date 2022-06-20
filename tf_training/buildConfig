@@ -1,0 +1,15 @@
+# ./configure 
+# Please specify the location of python. [Default is /usr/bin/python3]:
+/usr/local/bin/python
+# Please input the desired Python library path to use.  Default is [/usr/lib/python3/dist-packages]
+/usr/lib/python3/dist-packages
+# Do you wish to build TensorFlow with ROCm support? [y/N]:
+N 
+# Do you wish to build TensorFlow with CUDA support? [y/N]:
+N
+# Do you wish to download a fresh release of clang? (Experimental) [y/N]:
+N
+# Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is -Wno-sign-compare]:
+-march=native -Wno-sign-compare
+# Would you like to interactively configure ./WORKSPACE for Android builds? [y/N]: 
+N

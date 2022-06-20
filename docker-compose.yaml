@@ -2,14 +2,13 @@ version: "3"
 services:
   tf_training:
     image: tf_training
-    build: 
+    build:
       context: ./tf_training
-      dockerfile: Dockerfile.${OS}
+      dockerfile: Dockerfile.${CPUEVO}
     # user: "${UID}:${GID}"
     #restart: always
     environment:
       TZ: ${TZ}
-      PYTHONDONTWRITEBYTECODE: 1
+      #PYTHONDONTWRITEBYTECODE: 1
     volumes:
       - ./tf_training/src:/home/
-  

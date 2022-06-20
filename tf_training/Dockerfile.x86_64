@@ -1,5 +1,12 @@
-FROM tensorflow/tensorflow:latest
+FROM python:slim-bullseye
 LABEL maintaner='y-yoshimoto'
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r tensorflow\
+    && pip freeze > requirements.lock
+
 
 WORKDIR /home
 
